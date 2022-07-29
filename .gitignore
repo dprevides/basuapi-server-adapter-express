@@ -1,0 +1,10 @@
+node_modules
+generated_vercel
+# Keep environment variables out of version control
+.env
+dist
+yarn-error.log
+prisma/dev.db
+prisma/test.db
+vercel/public
+.vercel
