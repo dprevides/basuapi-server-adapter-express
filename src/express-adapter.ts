@@ -60,9 +60,9 @@ export class ExpressAdapter implements IServerAdapter{
     async setBeforeRoutingMiddlewares(preRouteMiddlewares: ApplicationMiddleware[]): Promise<void> {
         if (!preRouteMiddlewares) return;
         for (let middleware of preRouteMiddlewares){
-            console.debug(`Setting up pre route middleware function ${middleware.name}`);
+            console.debug(`Setting up pre route middleware function ${middleware.name}`);            
             const loadFunction = middleware.fn as Function;
-            this.app.use(middleware.path, async (req:Request,res:Response,next:NextFunction) => {
+            const dataFunction= async (req:Request,res:Response,next:NextFunction) => {
                 const request = await this.getRequest(req);
                 const response = await this.getResponse(res);
                 await loadFunction(request,response, (status:number, error:any) => {
@@ -71,15 +71,20 @@ export class ExpressAdapter implements IServerAdapter{
                     res.locals = data;
                     next();
                 });
-            })
+            }
+            if (middleware.path){
+                this.app.use(middleware.path, dataFunction); 
+            }else{
+                this.app.use(dataFunction); 
+            }
         }
     }
     async setAfterRoutingMiddlewares(afterRouteMiddlewares: ApplicationMiddleware[]): Promise<void> {
         if (!afterRouteMiddlewares) return;
         for (let middleware of afterRouteMiddlewares){
-            console.debug(`Setting up post route middleware function ${middleware.name}`);
+            console.debug(`Setting up pre route middleware function ${middleware.name}`);            
             const loadFunction = middleware.fn as Function;
-            this.app.use(middleware.path,async (req:Request,res:Response,next:NextFunction) => {
+            const dataFunction= async (req:Request,res:Response,next:NextFunction) => {
                 const request = await this.getRequest(req);
                 const response = await this.getResponse(res);
                 await loadFunction(request,response, (status:number, error:any) => {
@@ -88,7 +93,12 @@ export class ExpressAdapter implements IServerAdapter{
                     res.locals = data;
                     next();
                 });
-            })
+            }
+            if (middleware.path){
+                this.app.use(middleware.path, dataFunction); 
+            }else{
+                this.app.use(dataFunction); 
+            }
         }
     }
 
